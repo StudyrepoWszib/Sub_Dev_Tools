@@ -10,7 +10,7 @@ public class JeneticsExample {
     private static final double VOLUME_TOLERANCE = MAX_TOTAL_VOLUME * 0.05; // Dopuszczalna tolerancja
     private static final int POPULATION_SIZE = 50; // Rozmiar populacji
 
-    // Metoda obliczająca objętość dla jednego osobnika
+    // Obliczanie objętości dla jednego osobnika
     private static int calculateVolume(Genotype<IntegerGene> gt) {
         int height = gt.get(0).get(0).intValue();
         int length = gt.get(1).get(0).intValue();
@@ -18,22 +18,23 @@ public class JeneticsExample {
         return height * length * width;
     }
 
-    // Funkcja dopasowania dla osobnika, uwzględniająca całkowitą objętość populacji
-    private static double individualFitnessForGroup(Genotype<IntegerGene> gt, int totalVolume) {
+    // Оценка пригодности, основанная на способности заполнить объем популяцией одинаковых прямоугольников
+    private static double fitnessForFillingVolume(Genotype<IntegerGene> gt) {
         int individualVolume = calculateVolume(gt);
+        int totalVolume = individualVolume * POPULATION_SIZE;
 
-        // Kara za przekroczenie maksymalnej objętości populacji
+        // Штраф за превышение максимального объема
         if (totalVolume > MAX_TOTAL_VOLUME) {
-            return Math.max(0, MAX_TOTAL_VOLUME - individualVolume); // Obniżenie dopasowania
+            return MAX_TOTAL_VOLUME - totalVolume;
         }
 
-        // Kara za zbyt małą objętość populacji
-        if (totalVolume < MAX_TOTAL_VOLUME - VOLUME_TOLERANCE) {
-            return individualVolume * 0.9; // Płynne zwiększanie dopasowania
+        // Награда за объем, близкий к целевому
+        if (Math.abs(MAX_TOTAL_VOLUME - totalVolume) <= VOLUME_TOLERANCE) {
+            return MAX_TOTAL_VOLUME - Math.abs(MAX_TOTAL_VOLUME - totalVolume);
         }
 
-        // Normalne dopasowanie dla objętości w dopuszczalnych granicach
-        return individualVolume;
+        // Умеренное значение для объемов вне допустимого диапазона
+        return totalVolume * 0.8;
     }
 
     public static void main(String[] args) {
@@ -46,42 +47,27 @@ public class JeneticsExample {
 
         // Definiujemy funkcję dopasowania
         Engine<IntegerGene, Double> engine = Engine
-                .builder(gt -> 0.0, genotypeFactory) // Tymczasowa funkcja
+                .builder(JeneticsExample::fitnessForFillingVolume, genotypeFactory)
                 .populationSize(POPULATION_SIZE)
-                .selector(new RouletteWheelSelector<>()) // Łagodniejsza selekcja
-                .alterers(new Mutator<>(0.03), new SinglePointCrossover<>(0.6)) // Zmniejszenie szans na mutacje
+                .selector(new RouletteWheelSelector<>())
+                .alterers(new Mutator<>(0.05), new SinglePointCrossover<>(0.6))
                 .build();
 
         // Wykonujemy ewolucję
         EvolutionResult<IntegerGene, Double> result = engine.stream()
-                .limit(Limits.byFixedGeneration(200)) // Ograniczenie do 200 pokoleń
-                .limit(er -> {
-                    // Obliczanie aktualnej objętości populacji
-                    int totalVolume = er.population().asList().stream()
-                            .mapToInt(pt -> calculateVolume(pt.genotype()))
-                            .sum();
-
-                    // Ponowne obliczanie dopasowania dla całej populacji
-                    er.population().forEach(pt -> {
-                        double fitness = individualFitnessForGroup(pt.genotype(), totalVolume);
-                        pt = pt.withFitness(fitness);
-                    });
-
-                    // Wyświetlanie aktualnych informacji o populacji
-                    System.out.println("Całkowita objętość populacji: " + totalVolume + " (cel: " + MAX_TOTAL_VOLUME + ")");
-                    System.out.println("------------------------");
-
-                    // Kończymy ewolucję, jeśli objętość mieści się w dopuszczalnych granicach
-                    return Math.abs(MAX_TOTAL_VOLUME - totalVolume) > VOLUME_TOLERANCE;
-                })
+                .limit(Limits.bySteadyFitness(100))
+                .limit(Limits.byFixedGeneration(500))
                 .collect(EvolutionResult.toBestEvolutionResult());
 
-        // Obsługa przypadku, gdy wynik jest null
-        if (result == null || result.bestPhenotype() == null) {
-            System.out.println("Nie udało się osiągnąć rozwiązania w dopuszczalnym zakresie.");
-        } else {
-            // Wyświetlenie najlepszego rozwiązania
+        // Wyświetlenie najlepszego rozwiązania
+        if (result != null && result.bestPhenotype() != null) {
             System.out.println("Najlepszy wynik: " + result.bestPhenotype());
+            int bestVolume = calculateVolume(result.bestPhenotype().genotype());
+            int totalVolume = bestVolume * POPULATION_SIZE;
+            System.out.println("Objętość jednego osobnika: " + bestVolume);
+            System.out.println("Całkowita objętość populacji: " + totalVolume + " (cel: " + MAX_TOTAL_VOLUME + ")");
+        } else {
+            System.out.println("Nie udało się osiągnąć rozwiązania w dopuszczalnym zakresie.");
         }
     }
 }
