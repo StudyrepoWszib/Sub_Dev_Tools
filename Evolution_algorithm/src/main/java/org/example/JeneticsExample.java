@@ -4,104 +4,139 @@ import io.jenetics.*;
 import io.jenetics.engine.*;
 import io.jenetics.util.Factory;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class JeneticsExample {
 
-    private static final int MAX_TOTAL_VOLUME = 500000; // Maksymalna objętość
-    private static final double VOLUME_TOLERANCE = MAX_TOTAL_VOLUME * 0.05; // Dopuszczalna tolerancja
-    private static final int POPULATION_SIZE = 50; // Rozmiar populacji
+    private static final int MAX_TOTAL_VOLUME = 500000; // Максимальная целевая объем
+    private static final int RECTANGLE_COUNT = 43;      // Количество прямоугольников
+    private static final int CYLINDER_COUNT = 43;       // Количество цилиндров
+    private static final double TARGET_VOLUME = MAX_TOTAL_VOLUME * 0.95; // Целевой объем
 
-    // Создаем прямоугольник с заданными размерами
-    private static Rectangle createRectangle() {
-        double width = Math.random() * (10 - 5) + 5;   // Ширина от 5 до 10
-        double height = Math.random() * (50 - 5) + 5; // Высота от 5 до 50
-        double length = Math.random() * (50 - 5) + 5; // Длина от 5 до 50
-        return new Rectangle(width, height, length);
-    }
-
-    // Генерируем фабрику генотипов из объектов Rectangle
-    private static Factory<Genotype<IntegerGene>> createGenotypeFactory() {
-        List<Rectangle> rectangles = new ArrayList<>();
-
-        // Создаем объекты Rectangle для начальной популяции
-        for (int i = 0; i < POPULATION_SIZE; i++) {
-            rectangles.add(createRectangle());
-        }
-
-        return () -> {
-            // Для каждого Rectangle создаем генотип
-            Rectangle rectangle = rectangles.get((int) (Math.random() * rectangles.size()));
-            return Genotype.of(
-                    IntegerChromosome.of((int) rectangle.getWidth(), (int) rectangle.getWidth() + 1),
-                    IntegerChromosome.of((int) rectangle.getHeight(), (int) rectangle.getHeight() + 1),
-                    IntegerChromosome.of((int) rectangle.getLength(), (int) rectangle.getLength() + 1)
-            );
-        };
-    }
-
-
-    // Обчисление пригодности для заполнения объема
-    private static double fitnessForFillingVolume(Genotype<IntegerGene> genotype) {
+    // Создание объекта прямоугольника
+    private static Rectangle createRectangle(Genotype<IntegerGene> genotype) {
         double width = genotype.get(0).get(0).intValue();
         double height = genotype.get(1).get(0).intValue();
         double length = genotype.get(2).get(0).intValue();
+        return new Rectangle(width, height, length);
+    }
 
-        double individualVolume = width * height * length;
-        double totalVolume = individualVolume * POPULATION_SIZE;
+    // Создание объекта цилиндра
+    private static Cylinder createCylinder(Genotype<IntegerGene> genotype) {
+        double radius = genotype.get(0).get(0).intValue();
+        double height = genotype.get(1).get(0).intValue();
+        return new Cylinder(radius, height);
+    }
 
-        // Штраф за превышение объема
-        if (totalVolume > MAX_TOTAL_VOLUME) {
-            return MAX_TOTAL_VOLUME - totalVolume;
-        }
+    // Функция фитнеса для прямоугольников
+    private static double fitnessRectangle(Genotype<IntegerGene> genotype) {
+        return createRectangle(genotype).calculateVolume();
+    }
 
-        // Награда за объем близкий к целевому
-        if (Math.abs(MAX_TOTAL_VOLUME - totalVolume) <= VOLUME_TOLERANCE) {
-            return MAX_TOTAL_VOLUME - Math.abs(MAX_TOTAL_VOLUME - totalVolume);
-        }
-
-        // Умеренная оценка для объемов вне допустимого диапазона
-        return totalVolume * 0.8;
+    // Функция фитнеса для цилиндров
+    private static double fitnessCylinder(Genotype<IntegerGene> genotype) {
+        return createCylinder(genotype).calculateVolume();
     }
 
     public static void main(String[] args) {
-        // Создаем фабрику генотипов
-        Factory<Genotype<IntegerGene>> genotypeFactory = createGenotypeFactory();
+        // Генотип для прямоугольников
+        Factory<Genotype<IntegerGene>> rectangleFactory = Genotype.of(
+                IntegerChromosome.of(5, 10),   // Ширина
+                IntegerChromosome.of(5, 25),  // Высота
+                IntegerChromosome.of(5, 25)   // Длина
+        );
 
-        // Определение эволюционного процесса
-        Engine<IntegerGene, Double> engine = Engine
-                .builder(JeneticsExample::fitnessForFillingVolume, genotypeFactory)
-                .populationSize(POPULATION_SIZE)
-                .selector(new RouletteWheelSelector<>())
-                .alterers(new Mutator<>(0.05), new SinglePointCrossover<>(0.6))
+        // Генотип для цилиндров
+        Factory<Genotype<IntegerGene>> cylinderFactory = Genotype.of(
+                IntegerChromosome.of(5, 10),  // Радиус
+                IntegerChromosome.of(5, 25)   // Высота
+        );
+
+        // Эволюционный движок для прямоугольников
+        Engine<IntegerGene, Double> rectangleEngine = Engine
+                .builder(JeneticsExample::fitnessRectangle, rectangleFactory)
+                .populationSize(RECTANGLE_COUNT)
+                .selector(new TournamentSelector<>(3)) // Турнирный отбор
+                .alterers(
+                        new Mutator<>(0.1),             // Мутация с вероятностью 10%
+                        new SinglePointCrossover<>(0.7) // Скрещивание с вероятностью 70%
+                )
                 .build();
 
-        // Выполнение эволюции
-        EvolutionResult<IntegerGene, Double> result = engine.stream()
-                .limit(Limits.bySteadyFitness(100))
-                .limit(Limits.byFixedGeneration(500))
-                .collect(EvolutionResult.toBestEvolutionResult());
+        // Эволюционный движок для цилиндров
+        Engine<IntegerGene, Double> cylinderEngine = Engine
+                .builder(JeneticsExample::fitnessCylinder, cylinderFactory)
+                .populationSize(CYLINDER_COUNT)
+                .selector(new TournamentSelector<>(3)) // Турнирный отбор
+                .alterers(
+                        new Mutator<>(0.1),             // Мутация с вероятностью 10%
+                        new SinglePointCrossover<>(0.7) // Скрещивание с вероятностью 70%
+                )
+                .build();
+
+        Phenotype<IntegerGene, Double> bestRectangle = null;
+        Phenotype<IntegerGene, Double> bestCylinder = null;
+        double bestRectangleVolume = 0;
+        double bestCylinderVolume = 0;
+
+        // Выполняем до 100 поколений или достижения целевого объема
+        for (int generation = 1; generation <= 100; generation++) {
+            EvolutionResult<IntegerGene, Double> rectangleResult = rectangleEngine.stream()
+                    .limit(1)
+                    .collect(EvolutionResult.toBestEvolutionResult());
+
+            EvolutionResult<IntegerGene, Double> cylinderResult = cylinderEngine.stream()
+                    .limit(1)
+                    .collect(EvolutionResult.toBestEvolutionResult());
+
+            Phenotype<IntegerGene, Double> currentBestRectangle = rectangleResult.bestPhenotype();
+            Phenotype<IntegerGene, Double> currentBestCylinder = cylinderResult.bestPhenotype();
+
+            double currentRectangleVolume = currentBestRectangle.fitness();
+            double currentCylinderVolume = currentBestCylinder.fitness();
+
+            // Обновляем лучшие значения
+            if (currentRectangleVolume > bestRectangleVolume) {
+                bestRectangle = currentBestRectangle;
+                bestRectangleVolume = currentRectangleVolume;
+            }
+
+            if (currentCylinderVolume > bestCylinderVolume) {
+                bestCylinder = currentBestCylinder;
+                bestCylinderVolume = currentCylinderVolume;
+            }
+
+            // Рассчитываем общий объем
+            double totalVolume = RECTANGLE_COUNT * bestRectangleVolume + CYLINDER_COUNT * bestCylinderVolume;
+
+            // Вывод промежуточных данных
+            System.out.println("Поколение: " + generation);
+            System.out.println("Текущий объем: " + totalVolume);
+            System.out.println("Целевой объем: " + TARGET_VOLUME);
+
+            if (totalVolume >= TARGET_VOLUME) {
+                System.out.println("Достигнут целевой объем! Завершаем эволюцию.");
+                break;
+            }
+        }
+
+        // Создаем объекты для вывода параметров
+        Rectangle bestRectangleObject = createRectangle(bestRectangle.genotype());
+        Cylinder bestCylinderObject = createCylinder(bestCylinder.genotype());
+
+        // Итоговый объем
+        double finalVolume = RECTANGLE_COUNT * bestRectangleVolume + CYLINDER_COUNT * bestCylinderVolume;
 
         // Вывод результатов
-        if (result != null && result.bestPhenotype() != null) {
-            Genotype<IntegerGene> bestGenotype = result.bestPhenotype().genotype();
-
-            double width = bestGenotype.get(0).get(0).intValue();
-            double height = bestGenotype.get(1).get(0).intValue();
-            double length = bestGenotype.get(2).get(0).intValue();
-
-            double volume = width * height * length;
-            double totalVolume = volume * POPULATION_SIZE;
-
-            System.out.println("Лучший прямоугольник:");
-            System.out.println("Ширина: " + width);
-            System.out.println("Высота: " + height);
-            System.out.println("Длина: " + length);
-            System.out.println("Объем одного: " + volume);
-            System.out.println("Общий объем: " + totalVolume + " (Цель: " + MAX_TOTAL_VOLUME + ")");
-        } else {
-            System.out.println("Не удалось достичь решения в допустимых границах.");
-        }
+        System.out.println("\nИтоговые результаты:");
+        System.out.println("Лучший прямоугольник: " +
+                "Ширина=" + bestRectangleObject.getWidth() +
+                ", Высота=" + bestRectangleObject.getHeight() +
+                ", Длина=" + bestRectangleObject.getLength() +
+                ", Объем=" + bestRectangleVolume);
+        System.out.println("Лучший цилиндр: " +
+                "Радиус=" + bestCylinderObject.getRadius() +
+                ", Высота=" + bestCylinderObject.getHeight() +
+                ", Объем=" + bestCylinderVolume);
+        System.out.println("Общий объем популяции: " + finalVolume);
+        System.out.println("Целевой объем: " + TARGET_VOLUME);
     }
 }
