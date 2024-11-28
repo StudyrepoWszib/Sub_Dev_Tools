@@ -6,7 +6,7 @@ import io.jenetics.util.Factory;
 
 public class JeneticsExample {
 
-    // Stałe dla maksymalnego objętości i liczby figur
+    // Stałe dla maksymalnej objętości i liczby figur
     private static final int MAX_TOTAL_VOLUME = 500000; // Maksymalna docelowa objętość
     private static final int RECTANGLE_COUNT = 43;      // Liczba prostokątów
     private static final int CYLINDER_COUNT = 43;       // Liczba cylindrów
@@ -128,7 +128,7 @@ public class JeneticsExample {
         double bestCylinderVolume = 0;
         double bestSphereVolume = 0;
 
-        // Выполняем до 100 поколений или достижения целевого объема
+        // Wykonujemy do 100 pokoleń lub osiągnięcia docelowej objętości
         for (int generation = 1; generation <= 100; generation++) {
             EvolutionResult<IntegerGene, Double> rectangleResult = rectangleEngine.stream()
                     .limit(1)
@@ -150,7 +150,7 @@ public class JeneticsExample {
             double currentCylinderVolume = currentBestCylinder.fitness();
             double currentSphereVolume = currentBestSphere.fitness();
 
-            // Обновляем лучшие значения
+            // Aktualizujemy najlepsze wartości
             if (currentRectangleVolume > bestRectangleVolume) {
                 bestRectangle = currentBestRectangle;
                 bestRectangleVolume = currentRectangleVolume;
@@ -166,45 +166,45 @@ public class JeneticsExample {
                 bestSphereVolume = currentSphereVolume;
             }
 
-            // Рассчитываем общий объем
+            // Obliczamy całkowitą objętość
             double totalVolume = RECTANGLE_COUNT * bestRectangleVolume +
-                    CYLINDER_COUNT * bestCylinderVolume+SPHERE_COUNT*bestSphereVolume;
+                    CYLINDER_COUNT * bestCylinderVolume + SPHERE_COUNT * bestSphereVolume;
 
-            // Вывод промежуточных данных
-            System.out.println("Поколение: " + generation);
-            System.out.println("Текущий объем: " + totalVolume);
-            System.out.println("Целевой объем: " + TARGET_VOLUME);
+            // Wyświetlamy dane pośrednie
+            System.out.println("Pokolenie: " + generation);
+            System.out.println("Bieżąca objętość: " + totalVolume);
+            System.out.println("Docelowa objętość: " + TARGET_VOLUME);
 
             if (totalVolume >= TARGET_VOLUME) {
-                System.out.println("Достигнут целевой объем! Завершаем эволюцию.");
+                System.out.println("Osiągnięto docelową objętość! Zatrzymujemy ewolucję.");
                 break;
             }
         }
 
-        // Создаем объекты для вывода параметров
+        // Tworzymy obiekty do wyświetlenia parametrów
         Rectangle bestRectangleObject = createRectangle(bestRectangle.genotype());
         Cylinder bestCylinderObject = createCylinder(bestCylinder.genotype());
         Sphere bestSphereObject = createSphere(bestSphere.genotype());
 
-        // Итоговый объем
+        // Końcowa objętość
         double finalVolume = RECTANGLE_COUNT * bestRectangleVolume +
-                CYLINDER_COUNT * bestCylinderVolume+SPHERE_COUNT*bestSphereVolume;
+                CYLINDER_COUNT * bestCylinderVolume + SPHERE_COUNT * bestSphereVolume;
 
-        // Вывод результатов
-        System.out.println("\nИтоговые результаты:");
-        System.out.println("Лучший прямоугольник: " +
-                "Ширина=" + bestRectangleObject.getWidth() +
-                ", Высота=" + bestRectangleObject.getHeight() +
-                ", Длина=" + bestRectangleObject.getLength() +
-                ", Объем=" + bestRectangleVolume);
-        System.out.println("Лучший цилиндр: " +
-                "Радиус=" + bestCylinderObject.getRadius() +
-                ", Высота=" + bestCylinderObject.getHeight() +
-                ", Объем=" + bestCylinderVolume);
-        System.out.println("Лучшая сфера: " +
-                "Радиус=" + bestSphereObject.getRadius() +
-                ", Объем=" + bestSphereVolume);
-        System.out.println("Общий объем популяции: " + finalVolume);
-        System.out.println("Целевой объем: " + TARGET_VOLUME);
+        // Wyświetlamy wyniki
+        System.out.println("\nWyniki końcowe:");
+        System.out.println("Najlepszy prostokąt: " +
+                "Szerokość=" + bestRectangleObject.getWidth() +
+                ", Wysokość=" + bestRectangleObject.getHeight() +
+                ", Długość=" + bestRectangleObject.getLength() +
+                ", Objętość=" + bestRectangleVolume);
+        System.out.println("Najlepszy cylinder: " +
+                "Promień=" + bestCylinderObject.getRadius() +
+                ", Wysokość=" + bestCylinderObject.getHeight() +
+                ", Objętość=" + bestCylinderVolume);
+        System.out.println("Najlepsza sfera: " +
+                "Promień=" + bestSphereObject.getRadius() +
+                ", Objętość=" + bestSphereVolume);
+        System.out.println("Całkowita objętość populacji: " + finalVolume);
+        System.out.println("Docelowa objętość: " + TARGET_VOLUME);
     }
 }
