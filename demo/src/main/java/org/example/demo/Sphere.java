@@ -1,5 +1,4 @@
-package org.example;
-
+package org.example.demo;
 
 public class Sphere implements Form{
     private double radius;
