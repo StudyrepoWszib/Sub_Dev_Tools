@@ -1,4 +1,0 @@
-//komentaz
-
-public class Controler {
-}
