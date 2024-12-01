@@ -3,68 +3,81 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+<AnchorPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" stylesheets="@styles.css"
             fx:controller="org.example.demo.MainController">
     <children>
         <VBox spacing="10" alignment="TOP_LEFT" AnchorPane.topAnchor="10" AnchorPane.leftAnchor="10">
             <children>
-                <Label text="Настройки фигур" />
+                <Label text="Ustawienia figur" styleClass="header-label"/>
+                <GridPane hgap="10" vgap="10">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="50" />
+                        <ColumnConstraints percentWidth="25" />
+                        <ColumnConstraints percentWidth="25" />
+                    </columnConstraints>
+                    <children>
+                        <!-- Prostokąty -->
+                        <Label text="Prostokąty (ilość):" styleClass="sub-header-label" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                        <TextField fx:id="txtRectangleCount" text="5" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+                        <Label text="Szerokość (min):" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+                        <TextField fx:id="txtRectangleMinWidth" text="5" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+                        <Label text="Szerokość (max):" GridPane.rowIndex="1" GridPane.columnIndex="2" />
+                        <TextField fx:id="txtRectangleMaxWidth" text="25" GridPane.rowIndex="1" GridPane.columnIndex="2" />
+                        <Label text="Wysokość (min):" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+                        <TextField fx:id="txtRectangleMinHeight" text="5" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+                        <Label text="Wysokość (max):" GridPane.rowIndex="2" GridPane.columnIndex="2" />
+                        <TextField fx:id="txtRectangleMaxHeight" text="25" GridPane.rowIndex="2" GridPane.columnIndex="2" />
+                        <Label text="Długość (min):" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+                        <TextField fx:id="txtRectangleMinLength" text="5" GridPane.rowIndex="3" GridPane.columnIndex="1" />
+                        <Label text="Długość (max):" GridPane.rowIndex="3" GridPane.columnIndex="2" />
+                        <TextField fx:id="txtRectangleMaxLength" text="25" GridPane.rowIndex="3" GridPane.columnIndex="2" />
+
+                        <!-- Cylindry -->
+                        <Label text="Cylindry (ilość):" styleClass="sub-header-label" GridPane.rowIndex="4" GridPane.columnIndex="0" />
+                        <TextField fx:id="txtCylinderCount" text="5" GridPane.rowIndex="4" GridPane.columnIndex="1" />
+                        <Label text="Promień (min):" GridPane.rowIndex="5" GridPane.columnIndex="0" />
+                        <TextField fx:id="txtCylinderMinRadius" text="5" GridPane.rowIndex="5" GridPane.columnIndex="1" />
+                        <Label text="Promień (max):" GridPane.rowIndex="5" GridPane.columnIndex="2" />
+                        <TextField fx:id="txtCylinderMaxRadius" text="25" GridPane.rowIndex="5" GridPane.columnIndex="2" />
+                        <Label text="Wysokość (min):" GridPane.rowIndex="6" GridPane.columnIndex="0" />
+                        <TextField fx:id="txtCylinderMinHeight" text="5" GridPane.rowIndex="6" GridPane.columnIndex="1" />
+                        <Label text="Wysokość (max):" GridPane.rowIndex="6" GridPane.columnIndex="2" />
+                        <TextField fx:id="txtCylinderMaxHeight" text="25" GridPane.rowIndex="6" GridPane.columnIndex="2" />
+
+                        <!-- Sfery -->
+                        <Label text="Sfery (ilość):" styleClass="sub-header-label" GridPane.rowIndex="7" GridPane.columnIndex="0" />
+                        <TextField fx:id="txtSphereCount" text="5" GridPane.rowIndex="7" GridPane.columnIndex="1" />
+                        <Label text="Promień (min):" GridPane.rowIndex="8" GridPane.columnIndex="0" />
+                        <TextField fx:id="txtSphereMinRadius" text="5" GridPane.rowIndex="8" GridPane.columnIndex="1" />
+                        <Label text="Promień (max):" GridPane.rowIndex="8" GridPane.columnIndex="2" />
+                        <TextField fx:id="txtSphereMaxRadius" text="25" GridPane.rowIndex="8" GridPane.columnIndex="2" />
+                    </children>
+                </GridPane>
+
+                <Separator />
+
+                <Label text="Ustawienia algorytmu" styleClass="header-label"/>
                 <GridPane hgap="10" vgap="10">
                     <columnConstraints>
                         <ColumnConstraints percentWidth="50" />
                         <ColumnConstraints percentWidth="50" />
                     </columnConstraints>
                     <children>
-                        <!-- Прямоугольники -->
-                        <Label text="Прямоугольники:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
-                        <TextField fx:id="txtRectangleCount" promptText="Количество" GridPane.rowIndex="0" GridPane.columnIndex="1" />
-                        <Label text="Ширина (мин, макс):" GridPane.rowIndex="1" GridPane.columnIndex="0" />
-                        <TextField fx:id="txtRectangleWidth" promptText="Пример: 5,10" GridPane.rowIndex="1" GridPane.columnIndex="1" />
-                        <Label text="Высота (мин, макс):" GridPane.rowIndex="2" GridPane.columnIndex="0" />
-                        <TextField fx:id="txtRectangleHeight" promptText="Пример: 5,25" GridPane.rowIndex="2" GridPane.columnIndex="1" />
-                        <Label text="Длина (мин, макс):" GridPane.rowIndex="3" GridPane.columnIndex="0" />
-                        <TextField fx:id="txtRectangleLength" promptText="Пример: 5,25" GridPane.rowIndex="3" GridPane.columnIndex="1" />
-
-                        <!-- Цилиндры -->
-                        <Label text="Цилиндры:" GridPane.rowIndex="4" GridPane.columnIndex="0" />
-                        <TextField fx:id="txtCylinderCount" promptText="Количество" GridPane.rowIndex="4" GridPane.columnIndex="1" />
-                        <Label text="Радиус (мин, макс):" GridPane.rowIndex="5" GridPane.columnIndex="0" />
-                        <TextField fx:id="txtCylinderRadius" promptText="Пример: 5,10" GridPane.rowIndex="5" GridPane.columnIndex="1" />
-                        <Label text="Высота (мин, макс):" GridPane.rowIndex="6" GridPane.columnIndex="0" />
-                        <TextField fx:id="txtCylinderHeight" promptText="Пример: 5,25" GridPane.rowIndex="6" GridPane.columnIndex="1" />
-
-                        <!-- Сферы -->
-                        <Label text="Сферы:" GridPane.rowIndex="7" GridPane.columnIndex="0" />
-                        <TextField fx:id="txtSphereCount" promptText="Количество" GridPane.rowIndex="7" GridPane.columnIndex="1" />
-                        <Label text="Радиус (мин, макс):" GridPane.rowIndex="8" GridPane.columnIndex="0" />
-                        <TextField fx:id="txtSphereRadius" promptText="Пример: 5,10" GridPane.rowIndex="8" GridPane.columnIndex="1" />
+                        <Label text="Rozmiar populacji:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                        <TextField fx:id="txtMaxGenerations" text="100" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+                        <Label text="Docelowa objętość:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+                        <TextField fx:id="txtTargetVolume" text="475000" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+                        <Label text="Mutacje (%):" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+                        <TextField fx:id="txtMutationRate" text="10" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+                        <Label text="Krzyżowanie (%):" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+                        <TextField fx:id="txtCrossoverRate" text="60" GridPane.rowIndex="3" GridPane.columnIndex="1" />
                     </children>
                 </GridPane>
 
                 <Separator />
 
-                <Label text="Настройки алгоритма" />
-                <GridPane hgap="10" vgap="10">
-                    <columnConstraints>
-                        <ColumnConstraints percentWidth="50" />
-                        <ColumnConstraints percentWidth="50" />
-                    </columnConstraints>
-                    <children>
-                        <Label text="Объем популяции:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
-                        <TextField fx:id="txtPopulationSize" promptText="Пример: 100" GridPane.rowIndex="0" GridPane.columnIndex="1" />
-                        <Label text="Целевой объем:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
-                        <TextField fx:id="txtTargetVolume" promptText="Пример: 475000" GridPane.rowIndex="1" GridPane.columnIndex="1" />
-                        <Label text="Мутации (%):" GridPane.rowIndex="2" GridPane.columnIndex="0" />
-                        <TextField fx:id="txtMutationRate" promptText="Пример: 10" GridPane.rowIndex="2" GridPane.columnIndex="1" />
-                        <Label text="Кроссинг (%):" GridPane.rowIndex="3" GridPane.columnIndex="0" />
-                        <TextField fx:id="txtCrossoverRate" promptText="Пример: 60" GridPane.rowIndex="3" GridPane.columnIndex="1" />
-                    </children>
-                </GridPane>
-
-                <Separator />
-
-                <Button text="Запустить алгоритм" fx:id="btnRun" onAction="#runAlgorithm" />
-                <TextArea fx:id="txtResults" editable="false" wrapText="true" prefHeight="200" />
+                <Button text="Uruchom algorytm" fx:id="btnRun" onAction="#runAlgorithm" />
+                <TextArea fx:id="txtResults" editable="false" wrapText="true" prefHeight="320" />
             </children>
         </VBox>
     </children>

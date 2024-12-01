@@ -4,9 +4,11 @@ import io.jenetics.*;
 import io.jenetics.engine.*;
 import io.jenetics.util.Factory;
 
+import java.text.DecimalFormat;
+
 public class JeneticsExample {
 
-    // Параметры
+    // Parametry
     private static int rectangleCount;
     private static int cylinderCount;
     private static int sphereCount;
@@ -29,6 +31,7 @@ public class JeneticsExample {
 
     private static int sphereMinRadius;
     private static int sphereMaxRadius;
+
 
     public static void setParameters(int rectCount, int cylCount, int sphCount,
                                      int targetVol, int maxGen,
@@ -71,53 +74,52 @@ public class JeneticsExample {
         return new Rectangle(width, height, length);
     }
 
-    // Tworzenie obiektu cylindra
+    // Tworzenie obiektu walca
     private static Cylinder createCylinder(Genotype<IntegerGene> genotype) {
         double radius = genotype.get(0).get(0).intValue();
         double height = genotype.get(1).get(0).intValue();
         return new Cylinder(radius, height);
     }
 
-    // Tworzenie obiektu sfery
+    // Tworzenie obiektu kuli
     private static Sphere createSphere(Genotype<IntegerGene> genotype) {
         double radius = genotype.get(0).get(0).intValue();
         return new Sphere(radius);
     }
 
-    // Funkcja fitness dla prostokątów
+    // Funkcja oceny (fitness) dla prostokątów
     private static double fitnessRectangle(Genotype<IntegerGene> genotype) {
         return createRectangle(genotype).calculateVolume();
     }
 
-    // Funkcja fitness dla cylindrów
+    // Funkcja oceny (fitness) dla walców
     private static double fitnessCylinder(Genotype<IntegerGene> genotype) {
         return createCylinder(genotype).calculateVolume();
     }
 
-    // Funkcja fitness dla sfer
+    // Funkcja oceny (fitness) dla kul
     private static double fitnessSphere(Genotype<IntegerGene> genotype) {
         return createSphere(genotype).calculateVolume();
     }
 
-
     public static String run() {
-        // Генерация фабрик генотипов для каждой фигуры
+        // Generowanie fabryk genotypów dla każdej figury
         Factory<Genotype<IntegerGene>> rectangleFactory = Genotype.of(
-                IntegerChromosome.of(rectangleMinWidth, rectangleMaxWidth),  // Ширина
-                IntegerChromosome.of(rectangleMinHeight, rectangleMaxHeight), // Высота
-                IntegerChromosome.of(rectangleMinLength, rectangleMaxLength)  // Длина
+                IntegerChromosome.of(rectangleMinWidth, rectangleMaxWidth),  // Szerokość
+                IntegerChromosome.of(rectangleMinHeight, rectangleMaxHeight), // Wysokość
+                IntegerChromosome.of(rectangleMinLength, rectangleMaxLength)  // Długość
         );
 
         Factory<Genotype<IntegerGene>> cylinderFactory = Genotype.of(
-                IntegerChromosome.of(cylinderMinRadius, cylinderMaxRadius), // Радиус
-                IntegerChromosome.of(cylinderMinHeight, cylinderMaxHeight)  // Высота
+                IntegerChromosome.of(cylinderMinRadius, cylinderMaxRadius), // Promień
+                IntegerChromosome.of(cylinderMinHeight, cylinderMaxHeight)  // Wysokość
         );
 
         Factory<Genotype<IntegerGene>> sphereFactory = Genotype.of(
-                IntegerChromosome.of(sphereMinRadius, sphereMaxRadius)  // Радиус
+                IntegerChromosome.of(sphereMinRadius, sphereMaxRadius)  // Promień
         );
 
-        // Создание эволюционных движков
+        // Tworzenie silników ewolucyjnych
         Engine<IntegerGene, Double> rectangleEngine = Engine
                 .builder(JeneticsExample::fitnessRectangle, rectangleFactory)
                 .populationSize(rectangleCount)
@@ -152,7 +154,7 @@ public class JeneticsExample {
         double bestCylinderVolume = 0;
         double bestSphereVolume = 0;
 
-        // Эволюция на протяжении нескольких поколений
+        // Ewolucja przez wiele pokoleń
         for (int generation = 1; generation <= maxGenerations; generation++) {
             EvolutionResult<IntegerGene, Double> rectangleResult = rectangleEngine.stream()
                     .limit(1)
@@ -174,7 +176,7 @@ public class JeneticsExample {
             double currentCylinderVolume = currentBestCylinder.fitness();
             double currentSphereVolume = currentBestSphere.fitness();
 
-            // Обновляем лучшие значения
+            // Aktualizacja najlepszych wartości
             if (currentRectangleVolume > bestRectangleVolume) {
                 bestRectangle = currentBestRectangle;
                 bestRectangleVolume = currentRectangleVolume;
@@ -190,43 +192,43 @@ public class JeneticsExample {
                 bestSphereVolume = currentSphereVolume;
             }
 
-            // Суммарный объем популяции
+            // Całkowita objętość populacji
             double totalVolume = rectangleCount * bestRectangleVolume +
                     cylinderCount * bestCylinderVolume +
                     sphereCount * bestSphereVolume;
 
             if (totalVolume >= targetVolume) {
-                break; // Завершаем эволюцию, если достигнут целевой объем
+                break; // Zatrzymanie ewolucji, jeśli osiągnięto docelową objętość
             }
         }
 
-        // Создаем объекты для представления лучших результатов
+        // Tworzenie obiektów reprezentujących najlepsze wyniki
         Rectangle bestRectangleObject = createRectangle(bestRectangle.genotype());
         Cylinder bestCylinderObject = createCylinder(bestCylinder.genotype());
         Sphere bestSphereObject = createSphere(bestSphere.genotype());
-
-        // Итоговый объем
+        DecimalFormat df = new DecimalFormat("#.00");
+        // Końcowa objętość
         double finalVolume = rectangleCount * bestRectangleVolume +
                 cylinderCount * bestCylinderVolume +
                 sphereCount * bestSphereVolume;
 
-        // Формируем результат в виде строки
+        // Sformatowanie wyników jako ciąg znaków
         StringBuilder results = new StringBuilder();
-        results.append("Итоговые результаты:\n");
-        results.append("Лучший прямоугольник: ")
-                .append("Ширина=").append(bestRectangleObject.getWidth())
-                .append(", Высота=").append(bestRectangleObject.getHeight())
-                .append(", Длина=").append(bestRectangleObject.getLength())
-                .append(", Объем=").append(bestRectangleVolume).append("\n");
-        results.append("Лучший цилиндр: ")
-                .append("Радиус=").append(bestCylinderObject.getRadius())
-                .append(", Высота=").append(bestCylinderObject.getHeight())
-                .append(", Объем=").append(bestCylinderVolume).append("\n");
-        results.append("Лучшая сфера: ")
-                .append("Радиус=").append(bestSphereObject.getRadius())
-                .append(", Объем=").append(bestSphereVolume).append("\n");
-        results.append("Общий объем популяции: ").append(finalVolume).append("\n");
-        results.append("Целевой объем: ").append(targetVolume);
+        results.append("Końcowe wyniki:\n");
+        results.append("Najlepszy prostokąt:\n")
+                .append("Szerokość=").append(bestRectangleObject.getWidth())
+                .append("\nWysokość=").append(bestRectangleObject.getHeight())
+                .append("\nDługość=").append(bestRectangleObject.getLength())
+                .append("\nObjętość=").append(df.format(bestRectangleVolume)).append("\n");
+        results.append("Najlepszy walec:\n")
+                .append("\nPromień=").append(bestCylinderObject.getRadius())
+                .append("\nWysokość=").append(bestCylinderObject.getHeight())
+                .append("\nObjętość=").append(df.format(bestCylinderVolume)).append("\n");
+        results.append("Najlepsza kula:\n")
+                .append("\nPromień=").append(bestSphereObject.getRadius())
+                .append("\nObjętość=").append(df.format(bestSphereVolume)).append("\n");
+        results.append("\nCałkowita objętość populacji: ").append(df.format(finalVolume)).append("\n");
+        results.append("Docelowa objętość: ").append(targetVolume);
 
         return results.toString();
     }
