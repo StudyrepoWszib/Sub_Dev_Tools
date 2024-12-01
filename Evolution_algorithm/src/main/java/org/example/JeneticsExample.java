@@ -4,6 +4,8 @@ import io.jenetics.*;
 import io.jenetics.engine.*;
 import io.jenetics.util.Factory;
 
+import java.text.DecimalFormat;
+
 public class JeneticsExample {
 
     // Stałe dla maksymalnej objętości i liczby figur
@@ -185,7 +187,7 @@ public class JeneticsExample {
         Rectangle bestRectangleObject = createRectangle(bestRectangle.genotype());
         Cylinder bestCylinderObject = createCylinder(bestCylinder.genotype());
         Sphere bestSphereObject = createSphere(bestSphere.genotype());
-
+        DecimalFormat df = new DecimalFormat("#.00");
         // Końcowa objętość
         double finalVolume = RECTANGLE_COUNT * bestRectangleVolume +
                 CYLINDER_COUNT * bestCylinderVolume + SPHERE_COUNT * bestSphereVolume;
@@ -196,15 +198,15 @@ public class JeneticsExample {
                 "Szerokość=" + bestRectangleObject.getWidth() +
                 ", Wysokość=" + bestRectangleObject.getHeight() +
                 ", Długość=" + bestRectangleObject.getLength() +
-                ", Objętość=" + bestRectangleVolume);
+                ", Objętość=" + df.format(bestRectangleVolume));
         System.out.println("Najlepszy cylinder: " +
                 "Promień=" + bestCylinderObject.getRadius() +
                 ", Wysokość=" + bestCylinderObject.getHeight() +
-                ", Objętość=" + bestCylinderVolume);
+                ", Objętość=" + df.format(bestCylinderVolume));
         System.out.println("Najlepsza sfera: " +
                 "Promień=" + bestSphereObject.getRadius() +
-                ", Objętość=" + bestSphereVolume);
-        System.out.println("Całkowita objętość populacji: " + finalVolume);
+                ", Objętość=" + df.format(bestSphereVolume));
+        System.out.println("Całkowita objętość populacji: " + df.format(finalVolume));
         System.out.println("Docelowa objętość: " + TARGET_VOLUME);
     }
 }
