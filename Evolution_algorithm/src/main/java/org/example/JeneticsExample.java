@@ -10,36 +10,36 @@ import java.util.List;
 
 public class JeneticsExample {
 
-    // Константы для максимального объема и количества фигур
-    private static final int MAX_TOTAL_VOLUME = 900000; // Максимальная целевая объём
-    private static final int RECTANGLE_COUNT = 50;      // Количество прямоугольников
-    private static final int CYLINDER_COUNT = 50;       // Количество цилиндров
-    private static final int SPHERE_COUNT = 50;         // Количество сфер
+    // Stałe dotyczące maksymalnej objętości i liczby figur
+    private static final int MAX_TOTAL_VOLUME = 900000; // Maksymalna objętość
+    private static final int RECTANGLE_COUNT = 50;      // Liczba prostokątów
+    private static final int CYLINDER_COUNT = 50;       // Liczba cylindrów
+    private static final int SPHERE_COUNT = 50;         // Liczba sfer
 
-    // Целевой объём (95% от максимального объема)
+    // Docelowa objętość (95% maksymalnej objętości)
     private static final double TARGET_VOLUME = MAX_TOTAL_VOLUME * 0.95;
 
-    // Параметры мутации и скрещивания
-    private static final double MUTATION_RATE = 0.1;  // Вероятность мутации
-    private static final double CROSSOVER_RATE = 0.6; // Вероятность скрещивания
+    // Parametry mutacji i krzyżowania
+    private static final double MUTATION_RATE = 0.2;  // Prawdopodobieństwo mutacji
+    private static final double CROSSOVER_RATE = 0.6; // Prawdopodobieństwo krzyżowania
 
-    // Диапазоны размеров для прямоугольников
+    // Zakresy wymiarów dla prostokątów
     private static final int RECTANGLE_MIN_DIM = 5;
     private static final int RECTANGLE_MAX_WIDTH = 10;
-    private static final int RECTANGLE_MAX_HEIGHT = 25;
-    private static final int RECTANGLE_MAX_LENGTH = 25;
+    private static final int RECTANGLE_MAX_HEIGHT = 50;
+    private static final int RECTANGLE_MAX_LENGTH = 50;
 
-    // Диапазоны размеров для цилиндров
+    // Zakresy wymiarów dla cylindrów
     private static final int CYLINDER_MIN_RADIUS = 5;
     private static final int CYLINDER_MAX_RADIUS = 10;
     private static final int CYLINDER_MIN_HEIGHT = 5;
-    private static final int CYLINDER_MAX_HEIGHT = 20;
+    private static final int CYLINDER_MAX_HEIGHT = 30;
 
-    // Диапазоны размеров для сфер
+    // Zakresy wymiarów dla sfer
     private static final int SPHERE_MIN_RADIUS = 5;
-    private static final int SPHERE_MAX_RADIUS = 10;
+    private static final int SPHERE_MAX_RADIUS = 25;
 
-    // Метод для создания генотипа с минимальными значениями генов
+    // Metoda tworząca genotyp z minimalnymi wartościami genów
     private static Genotype<IntegerGene> createMinimalGenotype(Factory<Genotype<IntegerGene>> factory) {
         Genotype<IntegerGene> genotype = factory.newInstance();
 
@@ -54,7 +54,7 @@ public class JeneticsExample {
         return Genotype.of(minimalChromosomes);
     }
 
-    // Функция создания прямоугольника
+    // Funkcja tworząca prostokąt
     private static Rectangle createRectangle(Genotype<IntegerGene> genotype) {
         double width = genotype.get(0).get(0).intValue();
         double height = genotype.get(1).get(0).intValue();
@@ -62,36 +62,36 @@ public class JeneticsExample {
         return new Rectangle(width, height, length);
     }
 
-    // Функция создания цилиндра
+    // Funkcja tworząca cylinder
     private static Cylinder createCylinder(Genotype<IntegerGene> genotype) {
         double radius = genotype.get(0).get(0).intValue();
         double height = genotype.get(1).get(0).intValue();
         return new Cylinder(radius, height);
     }
 
-    // Функция создания сферы
+    // Funkcja tworząca sferę
     private static Sphere createSphere(Genotype<IntegerGene> genotype) {
         double radius = genotype.get(0).get(0).intValue();
         return new Sphere(radius);
     }
 
-    // Фитнес-функция для прямоугольников
+    // Funkcja fitness dla prostokątów
     private static double fitnessRectangle(Genotype<IntegerGene> genotype) {
         return createRectangle(genotype).calculateVolume();
     }
 
-    // Фитнес-функция для цилиндров
+    // Funkcja fitness dla cylindrów
     private static double fitnessCylinder(Genotype<IntegerGene> genotype) {
         return createCylinder(genotype).calculateVolume();
     }
 
-    // Фитнес-функция для сфер
+    // Funkcja fitness dla sfer
     private static double fitnessSphere(Genotype<IntegerGene> genotype) {
         return createSphere(genotype).calculateVolume();
     }
 
     public static void main(String[] args) {
-        // Фабрики генотипов с минимальными значениями
+        // Fabryki genotypów z minimalnymi wartościami
         Factory<Genotype<IntegerGene>> rectangleFactory = () -> createMinimalGenotype(
                 Genotype.of(
                         IntegerChromosome.of(RECTANGLE_MIN_DIM, RECTANGLE_MAX_WIDTH),
@@ -113,7 +113,7 @@ public class JeneticsExample {
                 )
         );
 
-        // Эволюционные движки
+        // Silniki ewolucyjne
         Engine<IntegerGene, Double> rectangleEngine = Engine
                 .builder(JeneticsExample::fitnessRectangle, rectangleFactory)
                 .populationSize(RECTANGLE_COUNT)
@@ -144,6 +144,7 @@ public class JeneticsExample {
                 )
                 .build();
 
+        // Wyniki ewolucji
         Phenotype<IntegerGene, Double> bestRectangle = null;
         Phenotype<IntegerGene, Double> bestCylinder = null;
         Phenotype<IntegerGene, Double> bestSphere = null;
@@ -152,7 +153,8 @@ public class JeneticsExample {
         double bestCylinderVolume = 0;
         double bestSphereVolume = 0;
 
-        for (int generation = 1; generation <= 200; generation++) {
+        // Proces ewolucji
+        for (int generation = 1; generation <= 100; generation++) {
             EvolutionResult<IntegerGene, Double> rectangleResult = rectangleEngine.stream()
                     .limit(1)
                     .collect(EvolutionResult.toBestEvolutionResult());
@@ -196,6 +198,7 @@ public class JeneticsExample {
             }
         }
 
+        // Tworzenie najlepszych obiektów
         Rectangle bestRectangleObject = createRectangle(bestRectangle.genotype());
         Cylinder bestCylinderObject = createCylinder(bestCylinder.genotype());
         Sphere bestSphereObject = createSphere(bestSphere.genotype());
@@ -204,17 +207,21 @@ public class JeneticsExample {
         double finalVolume = RECTANGLE_COUNT * bestRectangleVolume +
                 CYLINDER_COUNT * bestCylinderVolume + SPHERE_COUNT * bestSphereVolume;
 
-        System.out.println("\nРезультаты:");
-        System.out.println("Лучший прямоугольник: Ширина=" + bestRectangleObject.getWidth() +
-                ", Высота=" + bestRectangleObject.getHeight() +
-                ", Длина=" + bestRectangleObject.getLength() +
-                ", Объем=" + df.format(bestRectangleVolume));
-        System.out.println("Лучший цилиндр: Радиус=" + bestCylinderObject.getRadius() +
-                ", Высота=" + bestCylinderObject.getHeight() +
-                ", Объем=" + df.format(bestCylinderVolume));
-        System.out.println("Лучшая сфера: Радиус=" + bestSphereObject.getRadius() +
-                ", Объем=" + df.format(bestSphereVolume));
-        System.out.println("Общий объем: " + df.format(finalVolume));
-        System.out.println("Целевой объем: " + TARGET_VOLUME);
+        // Wyświetlanie wyników
+        System.out.println("\nWyniki końcowe:");
+        System.out.println("Najlepszy prostokąt: " +
+                "Szerokość=" + bestRectangleObject.getWidth() +
+                ", Wysokość=" + bestRectangleObject.getHeight() +
+                ", Długość=" + bestRectangleObject.getLength() +
+                ", Objętość=" + df.format(bestRectangleVolume));
+        System.out.println("Najlepszy cylinder: " +
+                "Promień=" + bestCylinderObject.getRadius() +
+                ", Wysokość=" + bestCylinderObject.getHeight() +
+                ", Objętość=" + df.format(bestCylinderVolume));
+        System.out.println("Najlepsza sfera: " +
+                "Promień=" + bestSphereObject.getRadius() +
+                ", Objętość=" + df.format(bestSphereVolume));
+        System.out.println("Całkowita objętość populacji: " + df.format(finalVolume));
+        System.out.println("Docelowa objętość: " + TARGET_VOLUME);
     }
 }
