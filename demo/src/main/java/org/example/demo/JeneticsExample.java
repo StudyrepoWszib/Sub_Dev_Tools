@@ -5,6 +5,8 @@ import io.jenetics.engine.*;
 import io.jenetics.util.Factory;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 public class JeneticsExample {
 
@@ -66,6 +68,21 @@ public class JeneticsExample {
         sphereMaxRadius = sphMaxRadius;
     }
 
+    // Metoda tworząca genotyp z minimalnymi wartościami genów
+    private static Genotype<IntegerGene> createMinimalGenotype(Factory<Genotype<IntegerGene>> factory) {
+        Genotype<IntegerGene> genotype = factory.newInstance();
+
+        List<Chromosome<IntegerGene>> minimalChromosomes = new ArrayList<>();
+        for (Chromosome<IntegerGene> chromosome : genotype) {
+            List<IntegerGene> minimalGenes = new ArrayList<>();
+            for (IntegerGene gene : chromosome) {
+                minimalGenes.add(IntegerGene.of(gene.min(), gene.min(), gene.max()));
+            }
+            minimalChromosomes.add(IntegerChromosome.of(minimalGenes));
+        }
+        return Genotype.of(minimalChromosomes);
+    }
+
     // Tworzenie obiektu prostokąta
     private static Rectangle createRectangle(Genotype<IntegerGene> genotype) {
         double width = genotype.get(0).get(0).intValue();
@@ -104,19 +121,25 @@ public class JeneticsExample {
 
     public static String run() {
         // Generowanie fabryk genotypów dla każdej figury
-        Factory<Genotype<IntegerGene>> rectangleFactory = Genotype.of(
+        Factory<Genotype<IntegerGene>> rectangleFactory = () -> createMinimalGenotype(
+                Genotype.of(
                 IntegerChromosome.of(rectangleMinWidth, rectangleMaxWidth),  // Szerokość
                 IntegerChromosome.of(rectangleMinHeight, rectangleMaxHeight), // Wysokość
-                IntegerChromosome.of(rectangleMinLength, rectangleMaxLength)  // Długość
+                IntegerChromosome.of(rectangleMinLength, rectangleMaxLength) // Długość
+                )
         );
 
-        Factory<Genotype<IntegerGene>> cylinderFactory = Genotype.of(
+        Factory<Genotype<IntegerGene>> cylinderFactory = () -> createMinimalGenotype(
+                Genotype.of(
                 IntegerChromosome.of(cylinderMinRadius, cylinderMaxRadius), // Promień
-                IntegerChromosome.of(cylinderMinHeight, cylinderMaxHeight)  // Wysokość
+                IntegerChromosome.of(cylinderMinHeight, cylinderMaxHeight)// Wysokość
+                )
         );
 
-        Factory<Genotype<IntegerGene>> sphereFactory = Genotype.of(
+        Factory<Genotype<IntegerGene>> sphereFactory = () -> createMinimalGenotype(
+                Genotype.of(
                 IntegerChromosome.of(sphereMinRadius, sphereMaxRadius)  // Promień
+                )
         );
 
         // Tworzenie silników ewolucyjnych
